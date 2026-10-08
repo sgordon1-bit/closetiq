@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClosetIQ — Gender-Neutral Prototype</title>
+<style>
+:root{--ink:#2b2520;--muted:#756b62;--paper:#f5efe7;--card:#fffdf9;--line:#ded3c7;--accent:#a6603f;--accent-soft:#f3e4d9;--warm:#c38a5a;--olive:#69705b}
+*{box-sizing:border-box}body{margin:0;background:#e5d9cc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+button{font:inherit;cursor:pointer}.shell{max-width:1100px;margin:28px auto;background:var(--paper);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.08)}
+.top{background:#fffdf9;border-bottom:1px solid var(--line);padding:19px 22px 12px}.brandrow{display:flex;justify-content:space-between;align-items:center;gap:15px}.logo{font-size:25px;font-weight:850;letter-spacing:-1.5px}.logo span{font-weight:450;color:var(--muted)}
+.weather{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#faf7f2;border-radius:9px;padding:8px 11px;font-size:12px;color:var(--muted)}.weather b{color:var(--ink)}
+nav{display:flex;gap:4px;margin-top:16px;overflow-x:auto}nav button{border:0;background:transparent;color:var(--muted);font-weight:650;font-size:13px;padding:9px 13px;border-radius:7px;white-space:nowrap}nav button.active{background:var(--ink);color:#fff}
+main{padding:23px}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:15px}.hero-main{background:#302820;color:#fffaf3;border-radius:17px;padding:25px;min-height:220px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;color:#c8a98e}.hero h1{font-size:34px;line-height:1.02;letter-spacing:-1.5px;margin:10px 0 11px;max-width:430px}.hero p{font-size:14px;line-height:1.55;color:#ddd3ca;max-width:490px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.primary{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:750}.secondary{background:#fffdf9;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700}.dark-secondary{background:#40362e;color:#fff;border:1px solid #41454b;border-radius:8px;padding:10px 14px;font-weight:700}
+.stat{background:#fffdf9;border:1px solid var(--line);border-radius:17px;padding:21px}.stat .number{font-size:42px;font-weight:850;letter-spacing:-2px}.stat p{font-size:13px;color:var(--muted);line-height:1.45}.tags{display:flex;flex-wrap:wrap;gap:7px}.tag{border:1px solid var(--line);background:#fffdf9;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:650;color:#665d56}.tag.selected{border-color:var(--accent);background:var(--accent-soft);color:#8e5036}
+.section{margin-top:25px}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:11px}.sectionhead h2{font-size:19px;letter-spacing:-.4px;margin:0}.sectionhead span{font-size:11px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.item{background:#fffdf9;border:1px solid var(--line);border-radius:12px;padding:9px}.itemvisual{height:110px;border-radius:8px;background:#eee5da;display:flex;align-items:center;justify-content:center;font-size:48px}.item b{display:block;font-size:12px;margin-top:8px}.item small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.look{background:#fffdf9;border:1px solid var(--line);border-radius:14px;overflow:hidden}.lookvisual{height:185px;background:#eee5da;display:flex;align-items:center;justify-content:center;gap:3px;font-size:63px}.lookbody{padding:13px}.lookbody h3{font-size:14px;margin:8px 0 4px}.lookbody p{font-size:11px;line-height:1.45;color:var(--muted);margin:0 0 10px}.score{display:inline-block;background:var(--accent-soft);color:#8e5036;padding:4px 7px;border-radius:5px;font-size:10px;font-weight:800}
+.panel{background:#fffdf9;border:1px solid var(--line);border-radius:15px;padding:19px}.two{display:grid;grid-template-columns:1fr 1fr;gap:13px}.panel h3{font-size:17px;margin:0 0 8px}.panel p{font-size:12px;line-height:1.55;color:var(--muted)}.upload{border:1.5px dashed #b9bdc1;background:#faf7f2;border-radius:11px;padding:25px;text-align:center;display:block}.upload input{display:none}.result{background:#f4eee7;border:1px solid #e0d4c8;border-radius:10px;padding:13px;margin-top:12px}.result strong{font-size:13px}.result p{margin:6px 0 0}.bar{height:6px;background:#ded2c6;border-radius:20px;margin-top:9px;overflow:hidden}.bar i{display:block;height:100%;width:88%;background:var(--accent)}.fitchoices{display:flex;flex-wrap:wrap;gap:8px}.fit{border:1px solid var(--line);background:#fffdf9;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:650}.fit.active{background:var(--ink);color:#fff;border-color:var(--ink)}.hidden{display:none!important}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#17191c;color:#fff;padding:10px 14px;border-radius:7px;font-size:12px;z-index:99}
+@media(max-width:650px){body{background:var(--paper)}.shell{margin:0;border-radius:0;border:0;box-shadow:none}main{padding:15px}.hero,.two{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.looks{grid-template-columns:1fr}.hero h1{font-size:29px}.top{padding:16px}.brandrow{align-items:flex-start;flex-direction:column}.weather{width:max-content}}
+
+.accountbar{display:flex;align-items:center;gap:8px}.accountbtn{border:1px solid var(--line);background:#fffdf9;color:var(--ink);border-radius:8px;padding:8px 11px;font-size:12px;font-weight:750}.accountbtn.primaryAccount{background:var(--ink);color:#fff;border-color:var(--ink)}
+.auth-overlay{position:fixed;inset:0;background:rgba(15,17,20,.62);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
+.auth-card{width:min(430px,100%);background:#fffdf9;border-radius:18px;padding:25px;border:1px solid #d9d9d5;box-shadow:0 25px 80px rgba(0,0,0,.22)}
+.auth-card h2{font-size:25px;letter-spacing:-.8px;margin:0 0 7px}.auth-card p{font-size:12px;line-height:1.5;color:var(--muted)}
+.auth-tabs{display:flex;background:#eee7df;border-radius:8px;padding:3px;margin:18px 0}.auth-tabs button{flex:1;border:0;background:transparent;border-radius:6px;padding:9px;font-size:12px;font-weight:750;color:var(--muted)}.auth-tabs button.active{background:#fffdf9;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.auth-field{margin:12px 0}.auth-field label{display:block;font-size:11px;font-weight:750;margin-bottom:6px}.auth-field input{width:100%;border:1px solid #d8d9d6;border-radius:8px;padding:11px 12px;font-size:14px;outline:none}.auth-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.auth-message{font-size:11px;color:#b3261e;min-height:16px;margin-top:6px}.auth-note{font-size:10px!important;color:#8a8f94!important;margin-top:14px}
+.profile-panel{position:absolute;right:22px;top:58px;width:245px;background:#fffdf9;border:1px solid var(--line);border-radius:12px;padding:13px;box-shadow:0 12px 35px rgba(0,0,0,.12);z-index:50}.profile-panel strong{font-size:13px}.profile-panel small{display:block;color:var(--muted);font-size:10px;margin:3px 0 10px}.profile-panel button{width:100%;margin-top:7px}
+.account-name{font-size:12px;color:var(--muted);white-space:nowrap}
+@media(max-width:650px){.account-name{display:none}.profile-panel{right:15px}}
+
+
+/* ClosetIQ motion system */
+#app{--motion-fast:180ms;--motion-med:360ms;--ease:cubic-bezier(.22,.8,.2,1)}
+#app nav{position:relative}
+#app nav button{position:relative;z-index:2;transition:color var(--motion-fast) var(--ease)}
+#app nav button.active{background:transparent;color:#fff}
+#app nav::before{content:"";position:absolute;z-index:1;top:0;bottom:0;left:var(--nav-left,0px);width:var(--nav-width,0px);background:var(--ink);border-radius:7px;transition:left var(--motion-med) var(--ease),width var(--motion-med) var(--ease)}
+#app .tab{animation:closetIqIn var(--motion-med) var(--ease) both}
+#app .tab.hidden{display:none!important}
+#app .page-leave{animation:closetIqOut 150ms ease both}
+@keyframes closetIqIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+@keyframes closetIqOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-10px)}}
+#app .hero-main,#app .stat,#app .panel,#app .item,#app .look{transition:transform 220ms var(--ease),border-color 220ms ease,box-shadow 220ms ease}
+#app .item:hover,#app .look:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(23,25,28,.07)}
+#app button{transition:transform 160ms var(--ease),background-color 180ms ease,color 180ms ease,border-color 180ms ease}
+#app button:active{transform:scale(.97)}
+#app .primary:hover{background:#8e5036}
+#app .tag{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,transform 160ms var(--ease)}
+#app .tag:hover{transform:translateY(-1px)}
+#app .fit{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,transform 160ms var(--ease)}
+#app .weather{transition:transform 220ms var(--ease)}
+#app .weather:hover{transform:translateY(-1px)}
+#app .auth-overlay{animation:fadeIn 180ms ease both}
+#app .auth-card{animation:authUp 300ms var(--ease) both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes authUp{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  #app *,#app *::before,#app *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+
+/* Warm editorial palette */
+#app{background:linear-gradient(145deg,#f8f3ec 0%,#f4eee6 48%,#f8f5ef 100%)}
+#app .hero-main{background:linear-gradient(135deg,#302820 0%,#3b3027 100%)}
+#app .hero-main:after{content:"";display:block;position:absolute;right:-45px;bottom:-65px;width:190px;height:190px;border-radius:50%;background:rgba(195,138,90,.13);pointer-events:none}
+#app .itemvisual,#app .lookvisual{background:linear-gradient(145deg,#f0e6da,#e9ddd0)}
+#app .stat .tags .tag.selected{background:#eee3d7;color:#7f4b35;border-color:#c79b7d}
+#app .weather{border-color:#dfd0c1}
+#app .score{background:#f1e3d7;color:#7f4b35}
+#app .bar i{background:#a6603f}
+#app .result{background:#f5eee7;border-color:#e3d7cb}
+#app .upload{border-color:#cdbbaa;background:#faf5ef}
+#app .fit.active{background:#302820;border-color:#302820}
+#app nav button.active{color:#fffaf3}
+
+</style>
+</head>
+<body>
+<div id="app" class="shell">
+<header class="top">
+  <div class="brandrow" style="position:relative">
+    <div class="logo">Closet<span>IQ</span></div>
+    <div class="accountbar">
+      <div class="weather">☀︎ <b>72°F</b> <span>Los Angeles · Sunny</span></div>
+      <div id="accountArea"></div>
+    </div>
+  </div>
+  <nav>
+    <button class="active" data-tab="home">Home</button>
+    <button data-tab="closet">Closet</button>
+    <button data-tab="style">Style DNA</button>
+    <button data-tab="outfits">Outfits</button>
+    <button data-tab="fit">Fit Preferences</button>
+  </nav>
+</header>
+<main>
+<section id="home" class="tab">
+  <div class="hero">
+    <div class="hero-main">
+      <div class="eyebrow">YOUR PERSONAL STYLE ENGINE</div>
+      <h1>Your closet has more possibilities than you think.</h1>
+      <p>ClosetIQ learns what you own, what you like, the weather and where you're going — then builds outfits that feel like you.</p>
+      <div class="actions">
+        <button class="primary" id="styleMe">✦ Style Me</button>
+        <button class="dark-secondary" id="makeMe">↗ Make It Me</button>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow" style="color:#756b62">TODAY</div>
+      <div class="number">72°</div>
+      <p>Sunny in Los Angeles<br>High 78° · Low 58°</p>
+      <div class="tags"><span class="tag selected">Chic</span><span class="tag">Minimal</span><span class="tag">Modern</span></div>
+      <div style="margin-top:17px;font-size:11px;color:#756b62">Your closet: <b style="color:#17191c">24 pieces</b></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sectionhead"><h2>What's the vibe?</h2><span>Choose one or mix several</span></div>
+    <div class="tags" id="vibes">
+      <button class="tag selected" data-vibe="Polished">Polished</button><button class="tag" data-vibe="Minimal">Minimal</button><button class="tag" data-vibe="Relaxed">Relaxed</button><button class="tag" data-vibe="Street">Street</button><button class="tag" data-vibe="Classic">Classic</button><button class="tag" data-vibe="Creative">Creative</button>
+    </div>
+  </div>
+  <div class="section"><div class="sectionhead"><h2>Recommended for you</h2><span id="homeContext">Work · 72°F</span></div><div id="daily"></div></div>
+</section>
+
+<section id="closet" class="tab hidden">
+  <div class="sectionhead"><div><h2>Digital Closet</h2><span>AI-organized wardrobe</span></div><button class="primary" id="add">＋ Add clothing</button></div>
+  <div class="tags" id="cats"><button class="tag selected" data-cat="All">All</button><button class="tag" data-cat="Tops">Tops</button><button class="tag" data-cat="Bottoms">Bottoms</button><button class="tag" data-cat="Dresses">One-Pieces</button><button class="tag" data-cat="Shoes">Shoes</button><button class="tag" data-cat="Accessories">Accessories</button></div>
+  <div id="closetGrid" class="grid" style="margin-top:12px"></div>
+</section>
+
+<section id="style" class="tab hidden">
+  <div class="sectionhead"><div><h2>Style DNA</h2><span>Teach ClosetIQ your taste</span></div></div>
+  <div class="two">
+    <div class="panel">
+      <h3>What feels like you?</h3><p>Select the aesthetics you want ClosetIQ to understand. You can combine completely different styles.</p>
+      <div class="tags" id="aesthetics"><button class="tag selected">Minimal</button><button class="tag selected">Classic</button><button class="tag">Utility</button><button class="tag">Vintage</button><button class="tag">Street</button><button class="tag">Avant-Garde</button><button class="tag">Sporty</button><button class="tag">Romantic</button></div>
+      <div class="result"><strong>Your current style mix</strong><div class="bar"><i></i></div><p>Minimal 38% · Classic 31% · Modern 21% · Other 10%</p></div>
+    </div>
+    <div class="panel">
+      <h3>Make It Me</h3><p>Found an outfit you love? Upload it and ClosetIQ will recreate the <i>idea</i> using pieces you already own.</p>
+      <label class="upload" for="inspo"><div style="font-size:30px">＋</div><b>Upload inspiration</b><div style="font-size:11px;color:#756b62;margin-top:5px">Screenshot, photo, Pinterest or social post</div><input id="inspo" type="file" accept="image/*"></label>
+      <div id="status" style="font-size:11px;color:#8e5036;margin-top:8px"></div>
+      <button class="primary" id="replicate" style="width:100%;margin-top:10px">Build My Version</button><div id="repResult"></div>
+    </div>
+  </div>
+</section>
+
+<section id="outfits" class="tab hidden">
+  <div class="sectionhead"><div><h2>Outfits</h2><span id="outfitContext">Built from your closet</span></div><button class="primary" id="shuffle">↻ Another look</button></div>
+  <div class="tags" id="occs"><button class="tag selected" data-occ="Work">Work</button><button class="tag" data-occ="Brunch">Brunch</button><button class="tag" data-occ="Date Night">Date Night</button><button class="tag" data-occ="Travel">Travel</button><button class="tag" data-occ="Casual">Casual</button><button class="tag" data-occ="Event">Event</button></div>
+  <div id="outfitGrid" style="margin-top:13px"></div>
+</section>
+
+<section id="fit" class="tab hidden">
+  <div class="sectionhead"><div><h2>Fit Preferences</h2><span>No gender assumptions. No style rules.</span></div></div>
+  <div class="two">
+    <div class="panel"><h3>How do you like clothes to fit?</h3><p>ClosetIQ uses your preferences rather than assuming what you should wear based on gender.</p>
+      <div class="fitchoices" id="fits"><button class="fit active">Defined waist</button><button class="fit">Relaxed</button><button class="fit">Oversized</button><button class="fit">Structured</button><button class="fit">Long lines</button><button class="fit">High rise</button><button class="fit">Low rise</button><button class="fit">Balanced</button></div>
+    </div>
+    <div class="panel"><h3>Your fit notes</h3><div class="result"><strong>Recommendations adapt to you.</strong><p>Based on your selected preferences, ClosetIQ may prioritize structured outerwear, defined silhouettes and balanced proportions.</p></div><div class="result"><strong>Preference first</strong><p>You can change these settings at any time. Your comfort and personal taste always override the AI's suggestions.</p></div></div>
+  </div>
+</section>
+</main>
+</div>
+<div id="toast" class="toast hidden" aria-live="polite"></div>
+
+
+<div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-card">
+    <h2 id="authTitle">Welcome to ClosetIQ</h2>
+    <p id="authSubtitle">Create an account to keep your closet, style preferences and saved outfits with you.</p>
+    <div class="auth-tabs">
+      <button id="loginTab" class="active" type="button">Log in</button>
+      <button id="signupTab" type="button">Create account</button>
+    </div>
+    <form id="authForm">
+      <div id="nameField" class="auth-field hidden"><label for="authName">Name</label><input id="authName" autocomplete="name" placeholder="Your name"></div>
+      <div class="auth-field"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+      <div class="auth-field"><label for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters"></div>
+      <div id="authMessage" class="auth-message" aria-live="polite"></div>
+      <button class="primary" id="authSubmit" type="submit" style="width:100%">Log in</button>
+    </form>
+    <p class="auth-note">Prototype account data is stored locally in this browser. This version is suitable for testing the user experience; a production release would connect this flow to secure server-side authentication.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+const r=document.getElementById('app');
+
+const STORAGE_USERS='closetiq_users_v1', STORAGE_SESSION='closetiq_session_v1';
+let authMode='login';
+let currentUser=null;
+const getUsers=()=>{try{return JSON.parse(localStorage.getItem(STORAGE_USERS)||'{}')}catch(e){return {}}};
+const saveUsers=u=>localStorage.setItem(STORAGE_USERS,JSON.stringify(u));
+const getSession=()=>localStorage.getItem(STORAGE_SESSION);
+const userKey=()=>currentUser?currentUser.email:'';
+function loadSession(){
+  const email=getSession(), users=getUsers();
+  currentUser=email&&users[email]?users[email]:null;
+  if(currentUser) loadUserState();
+  renderAccountArea();
+}
+function persistUser(){
+  if(!currentUser)return;
+  const users=getUsers(); users[currentUser.email]=currentUser; saveUsers(users);
+}
+function loadUserState(){
+  try{
+    const s=currentUser.appState||{};
+    if(s.vibe)vibe=s.vibe;
+    if(s.occ)occ=s.occ;
+    if(Array.isArray(s.saved)) savedOutfits=s.saved;
+  }catch(e){}
+}
+function saveUserState(){
+  if(!currentUser)return;
+  currentUser.appState={...(currentUser.appState||{}),vibe,occ,saved:savedOutfits};
+  persistUser();
+}
+function renderAccountArea(){
+  const a=document.getElementById('accountArea');
+  if(currentUser){
+    const first=(currentUser.name||currentUser.email.split('@')[0]||'Account').split(' ')[0];
+    a.innerHTML=`<button class="accountbtn primaryAccount" id="accountMenuBtn" type="button">● <span class="account-name">${first}</span> Account</button><div id="profilePanel" class="profile-panel hidden"><strong>${currentUser.name||first}</strong><small>${currentUser.email}</small><button class="secondary" id="profileBtn" type="button">Account settings</button><button class="secondary" id="logoutBtn" type="button">Log out</button></div>`;
+    document.getElementById('accountMenuBtn').addEventListener('click',()=>document.getElementById('profilePanel').classList.toggle('hidden'));
+    document.getElementById('logoutBtn').addEventListener('click',logout);
+    document.getElementById('profileBtn').addEventListener('click',()=>toast('Account settings are ready for the production version.'));
+  }else{
+    a.innerHTML='<button class="accountbtn" id="loginBtn" type="button">Log in</button><button class="accountbtn primaryAccount" id="signupBtn" type="button">Create account</button>';
+    document.getElementById('loginBtn').addEventListener('click',()=>openAuth('login'));
+    document.getElementById('signupBtn').addEventListener('click',()=>openAuth('signup'));
+  }
+}
+function openAuth(mode='login'){
+  authMode=mode;
+  document.getElementById('authOverlay').classList.remove('hidden');
+  document.getElementById('authMessage').textContent='';
+  document.getElementById('authForm').reset();
+  document.getElementById('nameField').classList.toggle('hidden',mode!=='signup');
+  document.getElementById('loginTab').classList.toggle('active',mode==='login');
+  document.getElementById('signupTab').classList.toggle('active',mode==='signup');
+  document.getElementById('authTitle').textContent=mode==='login'?'Welcome back':'Create your ClosetIQ account';
+  document.getElementById('authSubtitle').textContent=mode==='login'?'Log in to access your wardrobe and saved style data.':'Create an account to keep your closet, style preferences and saved outfits with you.';
+  document.getElementById('authSubmit').textContent=mode==='login'?'Log in':'Create account';
+  setTimeout(()=>document.getElementById('authEmail').focus(),50);
+}
+function closeAuth(){document.getElementById('authOverlay').classList.add('hidden')}
+function logout(){
+  saveUserState(); currentUser=null; localStorage.removeItem(STORAGE_SESSION); renderAccountArea(); toast('You have been logged out');
+}
+document.getElementById('loginTab').addEventListener('click',()=>openAuth('login'));
+document.getElementById('signupTab').addEventListener('click',()=>openAuth('signup'));
+document.getElementById('authForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const email=document.getElementById('authEmail').value.trim().toLowerCase();
+  const password=document.getElementById('authPassword').value;
+  const name=document.getElementById('authName').value.trim();
+  const msg=document.getElementById('authMessage');
+  const users=getUsers();
+  if(!email||!email.includes('@')){msg.textContent='Enter a valid email address.';return}
+  if(password.length<6){msg.textContent='Password must be at least 6 characters.';return}
+  if(authMode==='signup'){
+    if(users[email]){msg.textContent='An account with this email already exists. Try logging in.';return}
+    currentUser={email,password,name:name||email.split('@')[0],createdAt:new Date().toISOString(),appState:{}};
+    users[email]=currentUser; saveUsers(users); localStorage.setItem(STORAGE_SESSION,email); closeAuth(); renderAccountArea(); toast('Account created — welcome to ClosetIQ');
+  }else{
+    if(!users[email]||users[email].password!==password){msg.textContent='Email or password is incorrect.';return}
+    currentUser=users[email]; localStorage.setItem(STORAGE_SESSION,email); loadUserState(); closeAuth(); renderAccountArea(); daily(); renderOutfits(); toast('Welcome back to ClosetIQ');
+  }
+});
+document.getElementById('authOverlay').addEventListener('click',e=>{if(e.target.id==='authOverlay')closeAuth()});
+
+const items=[
+['Black blazer','Outerwear','🧥'],['Ivory knit','Tops','◻️'],['Black tee','Tops','⬛'],['White shirt','Tops','◻️'],['Grey crewneck','Tops','◽'],
+['Wide-leg trousers','Bottoms','👖'],['Straight jeans','Bottoms','👖'],['Black trousers','Bottoms','⬛'],['Pleated pants','Bottoms','🤎'],
+['Black one-piece','Dresses','◼️'],['White sneakers','Shoes','👟'],['Black boots','Shoes','🥾'],['Loafers','Shoes','👞'],['Running shoes','Shoes','👟'],
+['Black tote','Accessories','👜'],['Silver watch','Accessories','⌚'],['Crossbody bag','Accessories','🎒'],['Utility jacket','Outerwear','🧥']
+];
+let vibe='Polished',occ='Work',cat='All',offset=0,savedOutfits=[];
+
+const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(window.ciqToast);window.ciqToast=setTimeout(()=>t.classList.add('hidden'),1800)};
+function tab(id){
+  const tabs=[...document.querySelectorAll('.tab')];
+  const target=document.getElementById(id);
+  const current=tabs.find(x=>!x.classList.contains('hidden'));
+  if(current===target)return;
+  if(current){
+    current.classList.remove('page-leave');
+    void current.offsetWidth;
+    current.classList.add('page-leave');
+    setTimeout(()=>current.classList.add('hidden'),150);
+  }
+  setTimeout(()=>{
+    tabs.forEach(x=>{if(x!==target)x.classList.add('hidden')});
+    target.classList.remove('hidden');
+    target.classList.remove('page-leave');
+  }, current ? 135 : 0);
+
+  const nav=document.querySelector('nav');
+  const buttons=[...nav.querySelectorAll('button')];
+  buttons.forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
+  const active=buttons.find(x=>x.dataset.tab===id);
+  if(active){
+    nav.style.setProperty('--nav-left',active.offsetLeft+'px');
+    nav.style.setProperty('--nav-width',active.offsetWidth+'px');
+    nav.style.setProperty('--nav-ready','1');
+  }
+  if(id==='closet')closet();
+  if(id==='outfits')renderOutfits();
+}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.tab)));
+
+function closet(){const a=cat==='All'?items:items.filter(x=>x[1]===cat);document.getElementById('closetGrid').innerHTML=a.map(x=>`<div class="item"><div class="itemvisual">${x[2]}</div><b>${x[0]}</b><small>${x[1]}</small></div>`).join('')}
+document.querySelectorAll('#cats .tag').forEach(b=>b.addEventListener('click',()=>{cat=b.dataset.cat;document.querySelectorAll('#cats .tag').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');closet()}));
+
+const sets=[
+['⬛','◻️','🤎','👞','👜','Polished','Black tee · Pleated pants · Blazer · Loafers'],
+['◻️','👖','👟','👜','⌚','Minimal','Ivory knit · Straight jeans · Sneakers · Watch'],
+['⬛','👖','🥾','🧥','🎒','Street','Black tee · Straight jeans · Utility jacket · Boots'],
+['◻️','🤎','👞','⌚','👜','Classic','White shirt · Pleated pants · Loafers · Watch'],
+['◽','⬛','👟','🧥','🎒','Relaxed','Grey crewneck · Black trousers · Sneakers · Utility jacket'],
+['◻️','⬛','🥾','👜','⌚','Creative','White shirt · Black trousers · Boots · Accessories']
+];
+function look(n=0){const s=sets[n%sets.length];return `<div class="look"><div class="lookvisual">${s.slice(0,5).join('')}</div><div class="lookbody"><span class="score">${94-n*2}% STYLE MATCH</span><h3>${s[5]}</h3><p>${s[6]}</p><button class="secondary save">♡ Save</button></div></div>`}
+function daily(){const map={Polished:0,Minimal:1,Relaxed:4,Street:2,Classic:3,Creative:5};document.getElementById('daily').innerHTML=look(map[vibe]??0)}
+document.querySelectorAll('#vibes .tag').forEach(b=>b.addEventListener('click',()=>{vibe=b.dataset.vibe;document.querySelectorAll('#vibes .tag').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');daily();saveUserState();toast(vibe+' mode selected')}));
+
+document.getElementById('styleMe').addEventListener('click',()=>{if(!currentUser){openAuth('login');return}tab('outfits');toast('Your personalized looks are ready')});
+document.getElementById('makeMe').addEventListener('click',()=>tab('style'));
+document.getElementById('add').addEventListener('click',()=>toast('Demo mode: wardrobe scanning is represented by your digital closet.'));
+document.querySelectorAll('#aesthetics .tag').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('selected')));
+
+document.getElementById('inspo').addEventListener('change',e=>{const f=e.target.files[0];document.getElementById('status').textContent=f?'✓ Inspiration added: '+f.name:''});
+document.getElementById('replicate').addEventListener('click',()=>{document.getElementById('repResult').innerHTML='<div class="result"><strong>Your version</strong><p>Ivory knit + black trousers + utility jacket + loafers + your black tote.</p><span class="score">89% aesthetic match</span><div class="bar"><i style="width:89%"></i></div></div>';toast('Look translated into your wardrobe')});
+
+function renderOutfits(){
+const base={Work:0,Brunch:1,'Date Night':3,Travel:4,Casual:2,Event:5}[occ]??0;
+document.getElementById('outfitContext').textContent=occ+' · 72°F · '+vibe;
+document.getElementById('outfitGrid').innerHTML='<div class="looks">'+look((base+offset)%6)+look((base+offset+2)%6)+look((base+offset+4)%6)+'</div>';
+document.querySelectorAll('.save').forEach(b=>b.addEventListener('click',()=>{b.textContent='✓ Saved';b.className='primary';savedOutfits.push({occasion:occ,vibe,createdAt:Date.now()});saveUserState();toast('Saved to your outfits')}));
+}
+document.querySelectorAll('#occs .tag').forEach(b=>b.addEventListener('click',()=>{occ=b.dataset.occ;document.querySelectorAll('#occs .tag').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');renderOutfits()}));
+document.getElementById('shuffle').addEventListener('click',()=>{offset++;renderOutfits();toast('Showing another combination')});
+document.querySelectorAll('#fits .fit').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('active')));
+
+loadSession();daily();closet();
+requestAnimationFrame(()=>{
+  const active=document.querySelector('nav button.active');
+  const nav=document.querySelector('nav');
+  if(active&&nav){
+    nav.style.setProperty('--nav-left',active.offsetLeft+'px');
+    nav.style.setProperty('--nav-width',active.offsetWidth+'px');
+  }
+});
+window.addEventListener('resize',()=>{
+  const active=document.querySelector('nav button.active');
+  const nav=document.querySelector('nav');
+  if(active&&nav){
+    nav.style.setProperty('--nav-left',active.offsetLeft+'px');
+    nav.style.setProperty('--nav-width',active.offsetWidth+'px');
+  }
+});
+})();
+</script>
+</body>
+</html>
