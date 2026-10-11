@@ -1700,8 +1700,8 @@ const sets=[
 function look(n=0){const s=sets[n%sets.length];return `<div class="look"><div class="lookvisual">${s.slice(0,5).join('')}</div><div class="lookbody"><span class="score">${94-n*2}% STYLE MATCH</span><h3>${s[5]}</h3><p>${s[6]}</p><button class="secondary save">♡ Save</button></div></div>`}
 
 function homeWeatherFit(item){
-  if(!liveWeather?.enabled || !Number.isFinite(Number(liveWeather.temperature))) return 0;
-  const t=Number(liveWeather.temperature), code=Number(liveWeather.code);
+  if(!closetIqWeatherState?.enabled || !Number.isFinite(Number(closetIqWeatherState.temperature))) return 0;
+  const t=Number(closetIqWeatherState.temperature), code=Number(closetIqWeatherState.code);
   const n=pwItemText(item);
   let s=0;
   const heavy=/coat|puffer|heavy|wool|fleece|thick|shearling|ugg|uggs|boot/.test(n);
@@ -1755,16 +1755,16 @@ function renderHomeRecommendation(){
   const countEl=document.getElementById('homeClosetCount');
   if(countEl)countEl.textContent=`${closet.length} uploaded piece${closet.length===1?'':'s'}`;
 
-  const temp=liveWeather?.enabled && Number.isFinite(Number(liveWeather.temperature))
-    ? `${Math.round(liveWeather.temperature)}°`
+  const temp=closetIqWeatherState?.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))
+    ? `${Math.round(closetIqWeatherState.temperature)}°`
     : '—';
   const homeTemp=document.getElementById('homeTemp');
   if(homeTemp)homeTemp.textContent=temp;
 
   const tempEl=document.getElementById('homeTemp');
   if(tempEl){
-    if(liveWeather?.enabled && Number.isFinite(Number(liveWeather.temperature))){
-      tempEl.textContent=`${Math.round(Number(liveWeather.temperature))}°`;
+    if(closetIqWeatherState?.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
+      tempEl.textContent=`${Math.round(Number(closetIqWeatherState.temperature))}°`;
     }else{
       tempEl.textContent='—';
     }
@@ -1772,8 +1772,8 @@ function renderHomeRecommendation(){
 
   const summary=document.getElementById('homeWeatherSummary');
   if(summary){
-    if(liveWeather?.enabled && Number.isFinite(Number(liveWeather.temperature))){
-      summary.innerHTML=`${weatherEmoji(Number(liveWeather.code))} ${escapeHtml(liveWeather.description)} · ${Math.round(Number(liveWeather.temperature))}°F in ${escapeHtml(liveWeather.city||'your area')}<br>${escapeHtml(liveWeather.forecastSummary||'Current conditions')}<br>Updated ${new Date(liveWeather.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
+    if(closetIqWeatherState?.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
+      summary.innerHTML=`${weatherEmoji(Number(closetIqWeatherState.code))} ${escapeHtml(closetIqWeatherState.description)} · ${Math.round(Number(closetIqWeatherState.temperature))}°F in ${escapeHtml(closetIqWeatherState.city||'your area')}<br>${escapeHtml(closetIqWeatherState.forecastSummary||'Current conditions')}<br>Updated ${new Date(closetIqWeatherState.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
     }else{
       const now=new Date();
       const dateLabel=now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
@@ -1783,7 +1783,7 @@ function renderHomeRecommendation(){
   }
 
   const context=document.getElementById('homeContext');
-  if(context)context.textContent=`${occ||'Casual'} · ${liveWeather?.enabled?'Local weather':'Weather access off'}`;
+  if(context)context.textContent=`${occ||'Casual'} · ${closetIqWeatherState?.enabled?'Local weather':'Weather access off'}`;
   const vibeTag=document.getElementById('homeVibeTag'); if(vibeTag)vibeTag.textContent=vibe||'Polished';
   const occTag=document.getElementById('homeOccTag'); if(occTag)occTag.textContent=occ||'Casual';
 
@@ -1801,7 +1801,7 @@ function renderHomeRecommendation(){
   }
 
   const q=pwQuality(pieces,vibe||'Polished',occ||'Casual');
-  const weatherText=liveWeather?.enabled
+  const weatherText=closetIqWeatherState?.enabled
     ? localWeatherRecommendation()
     : 'Weather access is off.  Turn on location & weather to make today’s pick weather-aware.';
   const title=pieces.length>=3 ? `${occ||'Casual'} look for you` : 'Best current closet match';
@@ -1850,7 +1850,7 @@ document.getElementById('homeOccTag')?.addEventListener('click',()=>{
 function syncHomeWeatherTag(){
   const tag=document.getElementById('homeWeatherTag');
   if(!tag)return;
-  const on=!!(liveWeather && liveWeather.enabled);
+  const on=!!(closetIqWeatherState && closetIqWeatherState.enabled);
   tag.classList.toggle('selected',on);
   tag.setAttribute('aria-pressed',String(on));
   tag.textContent=on?'Weather-aware ✓':'Weather-aware';
@@ -1860,7 +1860,7 @@ function syncHomeWeatherTag(){
 }
 document.getElementById('homeWeatherTag')?.addEventListener('click',()=>{
   showLocationPanel();
-  if(liveWeather?.enabled){
+  if(closetIqWeatherState?.enabled){
     toast('Weather-aware recommendations are on');
   }else{
     toast('Allow local weather to turn weather-aware recommendations on');
@@ -3004,7 +3004,7 @@ window.addEventListener('error',e=>{
 const LOCATION_PREF_KEY='closetiq_location_weather_v1';
 let locationWatchId=null;
 let weatherRefreshId=null;
-let liveWeather={enabled:false,lat:null,lon:null,city:'',temperature:null,feelsLike:null,wind:null,code:null,description:'',rainExpected:false,rainProbability:0,forecastSummary:'',updatedAt:null};
+let closetIqWeatherState={enabled:false,lat:null,lon:null,city:'',temperature:null,feelsLike:null,wind:null,code:null,description:'',rainExpected:false,rainProbability:0,forecastSummary:'',updatedAt:null};
 
 function loadLocationPrefs(){
   try{return JSON.parse(localStorage.getItem(LOCATION_PREF_KEY)||'null')}catch(e){return null}
@@ -3025,12 +3025,12 @@ function weatherEmoji(code){
   return '⛈️';
 }
 function localWeatherRecommendation(){
-  const t=Number(liveWeather.temperature);
-  const w=Number(liveWeather.wind||0);
-  const d=Number(liveWeather.code);
+  const t=Number(closetIqWeatherState.temperature);
+  const w=Number(closetIqWeatherState.wind||0);
+  const d=Number(closetIqWeatherState.code);
   if(!Number.isFinite(t))return 'Weather-aware styling is ready once you allow local weather access.';
   if([95,96,99].includes(d))return 'Stormy conditions — choose practical layers and secure footwear.';
-  if(liveWeather.rainExpected || [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(d))return `Rain is possible in the next few hours${liveWeather.rainProbability?` (up to ${Math.round(liveWeather.rainProbability)}% chance)`:''} — prioritize a weatherproof layer and shoes that handle wet conditions.`;
+  if(closetIqWeatherState.rainExpected || [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(d))return `Rain is possible in the next few hours${closetIqWeatherState.rainProbability?` (up to ${Math.round(closetIqWeatherState.rainProbability)}% chance)`:''} — prioritize a weatherproof layer and shoes that handle wet conditions.`;
   if(w>=18)return 'Windy conditions — favor secure layers and structured outerwear that will not blow around.';
   if(t<45)return 'Cold weather — favor warm layers, trousers, boots, and substantial outerwear.';
   if(t<60)return 'Cool weather — use a light layer or jacket and closed shoes.';
@@ -3042,25 +3042,25 @@ function localWeatherRecommendation(){
 function applyLiveWeatherToUI(){
   syncHomeWeatherTag();
   const pill=document.getElementById('weatherPill');
-  if(pill && liveWeather.enabled && Number.isFinite(Number(liveWeather.temperature))){
+  if(pill && closetIqWeatherState.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
     pill.classList.add('weather-localized');
-    pill.innerHTML=`${weatherEmoji(Number(liveWeather.code))} <strong>${Math.round(liveWeather.temperature)}°F</strong> <span>${liveWeather.city||'Your location'} · ${liveWeather.description}</span>`;
+    pill.innerHTML=`${weatherEmoji(Number(closetIqWeatherState.code))} <strong>${Math.round(closetIqWeatherState.temperature)}°F</strong> <span>${closetIqWeatherState.city||'Your location'} · ${closetIqWeatherState.description}</span>`;
   }
   const status=document.getElementById('locationStatus');
-  if(status && liveWeather.enabled){
-    status.textContent=`Local weather enabled · ${liveWeather.city||'Local area'} · ${Math.round(Number(liveWeather.temperature))}°F · ${liveWeather.forecastSummary||liveWeather.description} · Updated ${new Date(liveWeather.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`;
+  if(status && closetIqWeatherState.enabled){
+    status.textContent=`Local weather enabled · ${closetIqWeatherState.city||'Local area'} · ${Math.round(Number(closetIqWeatherState.temperature))}°F · ${closetIqWeatherState.forecastSummary||closetIqWeatherState.description} · Updated ${new Date(closetIqWeatherState.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`;
   }
   const msg=document.getElementById('locationWeatherMessage');
-  if(msg && liveWeather.enabled) msg.textContent=`ClosetIQ is using your approximate location for current conditions and the next several hours of rain risk.  Weather refreshes about every 10 minutes while the app is open.`;
+  if(msg && closetIqWeatherState.enabled) msg.textContent=`ClosetIQ is using your approximate location for current conditions and the next several hours of rain risk.  Weather refreshes about every 10 minutes while the app is open.`;
   const source=document.getElementById('outfitSourceDetail');
-  if(source && liveWeather.enabled){
-    source.textContent=`${getUserCloset().filter(x=>x.photo).length} uploaded clothing photos available · ${occ||'Casual'} · ${vibe||'Polished'} · ${Math.round(liveWeather.temperature)}°F · ${liveWeather.description}`;
+  if(source && closetIqWeatherState.enabled){
+    source.textContent=`${getUserCloset().filter(x=>x.photo).length} uploaded clothing photos available · ${occ||'Casual'} · ${vibe||'Polished'} · ${Math.round(closetIqWeatherState.temperature)}°F · ${closetIqWeatherState.description}`;
   }
   const homeWeather=document.querySelector('[data-weather-recommendation]');
   if(homeWeather)homeWeather.textContent=localWeatherRecommendation();
   const context=document.getElementById('homeContext');
-  if(context)context.textContent=liveWeather.enabled
-    ? `Based on your style mix · ${liveWeather.city||'Local weather'}`
+  if(context)context.textContent=closetIqWeatherState.enabled
+    ? `Based on your style mix · ${closetIqWeatherState.city||'Local weather'}`
     : 'Based on your style mix · Weather access off';
   if(typeof renderHomeRecommendation==='function')renderHomeRecommendation();
 }
@@ -3073,24 +3073,95 @@ async function reverseGeocode(lat,lon){
   }catch(e){return 'Local area'}
 }
 async function fetchLocalWeather(lat,lon,cityHint=''){
-  const u=`https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation&hourly=precipitation_probability,precipitation,weather_code&forecast_days=2&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
-  const r=await fetch(u); if(!r.ok)throw new Error('weather request failed');
-  const j=await r.json(); const c=j.current||{};
-  const hourly=j.hourly||{};
-  let startIndex=0;
-  if(Array.isArray(hourly.time)&&c.time){const found=hourly.time.findIndex(t=>t>=c.time);if(found>=0)startIndex=found;}
-  const nextHours=Array.from({length:6},(_,i)=>startIndex+i).filter(i=>Array.isArray(hourly.time)&&i<hourly.time.length);
-  const rainCodes=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99];
-  const probabilities=nextHours.map(i=>Number(hourly.precipitation_probability?.[i]||0));
-  const maxRainProbability=probabilities.length?Math.max(...probabilities):0;
-  const forecastRain=nextHours.some(i=>rainCodes.includes(Number(hourly.weather_code?.[i])) || Number(hourly.precipitation?.[i]||0)>=0.1);
-  const rainExpected=forecastRain && maxRainProbability>=25 || Number(c.precipitation||0)>=0.1 || rainCodes.includes(Number(c.weather_code));
-  const forecastSummary=rainExpected?`Rain risk in next 6 hours · ${Math.round(maxRainProbability)}% peak chance`:`Next 6 hours · ${maxRainProbability}% peak rain chance`;
-  liveWeather={...liveWeather,enabled:true,lat,lon,temperature:c.temperature_2m,feelsLike:c.apparent_temperature,wind:c.wind_speed_10m,code:c.weather_code,description:weatherDescription(c.weather_code),rainExpected,rainProbability:maxRainProbability,forecastSummary,updatedAt:Date.now()};
-  liveWeather.city=cityHint || await reverseGeocode(lat,lon);
-  saveLocationPrefs({enabled:true,lat,lon,city:liveWeather.city,locationSource:liveWeather.locationSource||'device'});
-  applyLiveWeatherToUI();
-  if(typeof renderOutfits==='function')renderOutfits();
+  const openMeteoUrl=`https://api.open-meteo.com/v1/forecast?${new URLSearchParams({
+    latitude:String(lat),longitude:String(lon),
+    current:'temperature_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation',
+    hourly:'precipitation_probability,precipitation,weather_code',
+    forecast_days:'2',temperature_unit:'fahrenheit',wind_speed_unit:'mph',timezone:'auto'
+  }).toString()}`;
+  let primaryError=null;
+  // Open-Meteo is the primary worldwide provider. Retry once to handle transient network failures.
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),12000);
+      let r;
+      try{r=await fetch(openMeteoUrl,{signal:controller.signal,cache:'no-store'});}
+      finally{clearTimeout(timer);}
+      if(!r.ok)throw new Error(`Open-Meteo returned HTTP ${r.status}`);
+      const j=await r.json();
+      if(j.error)throw new Error(j.reason||'Open-Meteo rejected the request');
+      const c=j.current||{};
+      if(!Number.isFinite(Number(c.temperature_2m)) || !Number.isFinite(Number(c.weather_code))) throw new Error('Weather response was missing current conditions');
+      const hourly=j.hourly||{};
+      let startIndex=0;
+      if(Array.isArray(hourly.time)&&c.time){const found=hourly.time.findIndex(t=>t>=c.time);if(found>=0)startIndex=found;}
+      const nextHours=Array.from({length:6},(_,i)=>startIndex+i).filter(i=>Array.isArray(hourly.time)&&i<hourly.time.length);
+      const rainCodes=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99];
+      const probabilities=nextHours.map(i=>Number(hourly.precipitation_probability?.[i]||0));
+      const maxRainProbability=probabilities.length?Math.max(...probabilities):0;
+      const forecastRain=nextHours.some(i=>rainCodes.includes(Number(hourly.weather_code?.[i])) || Number(hourly.precipitation?.[i]||0)>=0.1);
+      const rainExpected=(forecastRain && maxRainProbability>=25) || Number(c.precipitation||0)>=0.1 || rainCodes.includes(Number(c.weather_code));
+      const forecastSummary=rainExpected?`Rain risk in next 6 hours · ${Math.round(maxRainProbability)}% peak chance`:`Next 6 hours · ${Math.round(maxRainProbability)}% peak rain chance`;
+      closetIqWeatherState={...closetIqWeatherState,enabled:true,lat,lon,temperature:Number(c.temperature_2m),feelsLike:Number(c.apparent_temperature),wind:Number(c.wind_speed_10m),code:Number(c.weather_code),description:weatherDescription(Number(c.weather_code)),rainExpected,rainProbability:maxRainProbability,forecastSummary,updatedAt:Date.now(),provider:'Open-Meteo'};
+      closetIqWeatherState.city=cityHint || await reverseGeocode(lat,lon);
+      saveLocationPrefs({enabled:true,lat,lon,city:closetIqWeatherState.city,locationSource:closetIqWeatherState.locationSource||'device'});
+      applyLiveWeatherToUI();
+      if(typeof renderOutfits==='function')renderOutfits();
+      return true;
+    }catch(e){
+      primaryError=e;
+      if(attempt===0)await new Promise(resolve=>setTimeout(resolve,800));
+    }
+  }
+
+  // Secondary fallback for US locations: National Weather Service public forecast API.
+  // This lets the app recover when Open-Meteo is temporarily unavailable or blocked.
+  if(Number(lat)>=15 && Number(lat)<=72 && Number(lon)>=-180 && Number(lon)<=-60){
+    try{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),12000);
+      let pointResponse;
+      try{pointResponse=await fetch(`https://api.weather.gov/points/${encodeURIComponent(lat)},${encodeURIComponent(lon)}`,{headers:{Accept:'application/geo+json'},signal:controller.signal,cache:'no-store'});}
+      finally{clearTimeout(timer);}
+      if(!pointResponse.ok)throw new Error(`National Weather Service location lookup returned HTTP ${pointResponse.status}`);
+      const pointData=await pointResponse.json();
+      const hourlyUrl=pointData.properties?.forecastHourly;
+      if(!hourlyUrl)throw new Error('National Weather Service did not provide an hourly forecast');
+      const hourlyController=new AbortController();
+      const hourlyTimer=setTimeout(()=>hourlyController.abort(),12000);
+      let forecastResponse;
+      try{forecastResponse=await fetch(hourlyUrl,{headers:{Accept:'application/geo+json'},signal:hourlyController.signal,cache:'no-store'});}
+      finally{clearTimeout(hourlyTimer);}
+      if(!forecastResponse.ok)throw new Error(`National Weather Service forecast returned HTTP ${forecastResponse.status}`);
+      const forecastData=await forecastResponse.json();
+      const periods=forecastData.properties?.periods||[];
+      if(!periods.length)throw new Error('National Weather Service returned no hourly forecast');
+      const now=periods[0];
+      const next=periods.slice(0,6);
+      const rainProbabilities=next.map(p=>Number(p.probabilityOfPrecipitation?.value||0));
+      const rainProbability=rainProbabilities.length?Math.max(...rainProbabilities):0;
+      const desc=String(now.shortForecast||'Conditions unavailable');
+      const rainExpected=next.some(p=>/rain|shower|thunderstorm|drizzle|snow|sleet/i.test(p.shortForecast||''))||rainProbability>=25;
+      const temp=Number(now.temperature);
+      const windMatch=String(now.windSpeed||'').match(/[\d.]+/);
+      const wind=windMatch?Number(windMatch[0]):null;
+      if(!Number.isFinite(temp))throw new Error('National Weather Service returned no temperature');
+      closetIqWeatherState={...closetIqWeatherState,enabled:true,lat,lon,temperature:temp,feelsLike:temp,wind,code:rainExpected?61:1,description:desc,rainExpected,rainProbability,forecastSummary:rainExpected?`Rain risk in next 6 hours · ${Math.round(rainProbability)}% peak chance`:`Next 6 hours · ${Math.round(rainProbability)}% peak rain chance`,updatedAt:Date.now(),provider:'National Weather Service'};
+      closetIqWeatherState.city=cityHint||pointData.properties?.relativeLocation?.properties?.city||await reverseGeocode(lat,lon);
+      saveLocationPrefs({enabled:true,lat,lon,city:closetIqWeatherState.city,locationSource:closetIqWeatherState.locationSource||'device'});
+      applyLiveWeatherToUI();
+      if(typeof renderOutfits==='function')renderOutfits();
+      const status=document.getElementById('locationStatus');
+      if(status)status.textContent=`Local weather enabled · ${closetIqWeatherState.city||'Local area'} · ${Math.round(temp)}°F · Forecast from National Weather Service · Updated ${new Date(closetIqWeatherState.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`;
+      return true;
+    }catch(fallbackError){
+      console.warn('ClosetIQ weather providers failed:',primaryError,fallbackError);
+      throw new Error(`Weather providers could not be reached. Open-Meteo: ${primaryError?.message||'request failed'}. National Weather Service: ${fallbackError?.message||'request failed'}.`);
+    }
+  }
+  console.warn('ClosetIQ Open-Meteo weather request failed:',primaryError);
+  throw new Error(`Open-Meteo could not be reached: ${primaryError?.message||'request failed'}`);
 }
 function showLocationPanel(){
   const p=document.getElementById('locationWeatherPanel'); if(p)p.hidden=false;
@@ -3104,7 +3175,7 @@ function stopLocationTracking(){
     locationWatchId=null;
   }
   if(weatherRefreshId!==null){clearInterval(weatherRefreshId);weatherRefreshId=null;}
-  liveWeather.enabled=false;
+  closetIqWeatherState.enabled=false;
   saveLocationPrefs({enabled:false});
   const pill=document.getElementById('weatherPill');
   if(pill){
@@ -3139,17 +3210,17 @@ async function enableApproximateWeather(setHelp,status,reason=''){
     }
     if(!j)throw lastError||new Error('IP location unavailable');
     const ipCity=j.city||j.region||j.region_name||j.country_name||j.country||'Your area';
-    liveWeather.locationSource='ip-approximate';
+    closetIqWeatherState.locationSource='ip-approximate';
     await fetchLocalWeather(Number(j.latitude),Number(j.longitude),ipCity);
-    liveWeather.locationSource='ip-approximate';
-    saveLocationPrefs({enabled:true,lat:liveWeather.lat,lon:liveWeather.lon,city:liveWeather.city,locationSource:'ip-approximate'});
+    closetIqWeatherState.locationSource='ip-approximate';
+    saveLocationPrefs({enabled:true,lat:closetIqWeatherState.lat,lon:closetIqWeatherState.lon,city:closetIqWeatherState.city,locationSource:'ip-approximate'});
     hideLocationPanel();
-    if(status)status.textContent=`Approximate local weather is on for ${liveWeather.city||ipCity}.  Weather will refresh automatically while ClosetIQ is open.`;
+    if(status)status.textContent=`Approximate local weather is on for ${closetIqWeatherState.city||ipCity}.  Weather will refresh automatically while ClosetIQ is open.`;
     setHelp('Location access was approved in ClosetIQ.  Because precise browser location was unavailable, weather uses an approximate city or region estimated from your internet connection.  You can turn this off at any time.');
     if(weatherRefreshId!==null)clearInterval(weatherRefreshId);
     weatherRefreshId=setInterval(async()=>{
-      if(liveWeather.enabled && Number.isFinite(liveWeather.lat) && Number.isFinite(liveWeather.lon)){
-        try{await fetchLocalWeather(liveWeather.lat,liveWeather.lon)}catch(e){}
+      if(closetIqWeatherState.enabled && Number.isFinite(closetIqWeatherState.lat) && Number.isFinite(closetIqWeatherState.lon)){
+        try{await fetchLocalWeather(closetIqWeatherState.lat,closetIqWeatherState.lon)}catch(e){}
       }
     },600000);
     return true;
@@ -3204,13 +3275,13 @@ async function enableLocationWeather(){
       }
       if(weatherRefreshId!==null)clearInterval(weatherRefreshId);
       weatherRefreshId=setInterval(async()=>{
-        if(liveWeather.enabled && Number.isFinite(liveWeather.lat) && Number.isFinite(liveWeather.lon)){
-          try{await fetchLocalWeather(liveWeather.lat,liveWeather.lon)}catch(e){}
+        if(closetIqWeatherState.enabled && Number.isFinite(closetIqWeatherState.lat) && Number.isFinite(closetIqWeatherState.lon)){
+          try{await fetchLocalWeather(closetIqWeatherState.lat,closetIqWeatherState.lon)}catch(e){}
         }
       },600000);
     }catch(e){
-      if(status)status.textContent='Location was allowed, but local weather could not be retrieved.';
-      setHelp('Your location permission worked, but the weather service could not be reached.  Check your internet connection and try again.  Weather uses the Open-Meteo forecast service.');
+      if(status)status.textContent='Your location was found, but the weather forecast request failed.';
+      setHelp(`Your location permission worked, but the weather forecast could not be retrieved. ${e?.message||'The weather service request failed.'} Check your connection, VPN, or content blocker, then tap Allow location & weather to retry. ClosetIQ will try a backup forecast provider for US locations.`);
     }
   },async err=>{
     let reason='';
@@ -3234,7 +3305,7 @@ function initLocationWeather(){
 
   const pref=loadLocationPrefs();
   if(pref?.enabled && Number.isFinite(pref.lat) && Number.isFinite(pref.lon)){
-    liveWeather={...liveWeather,enabled:true,lat:pref.lat,lon:pref.lon,city:pref.city||'Local area',locationSource:pref.locationSource||'device'};
+    closetIqWeatherState={...closetIqWeatherState,enabled:true,lat:pref.lat,lon:pref.lon,city:pref.city||'Local area',locationSource:pref.locationSource||'device'};
     fetchLocalWeather(pref.lat,pref.lon,pref.city||'').catch(()=>{
       const status=document.getElementById('locationStatus');
       if(status)status.textContent='Saved weather location could not be refreshed.  Check your internet connection.';
@@ -3245,8 +3316,8 @@ function initLocationWeather(){
       },()=>{}, {enableHighAccuracy:false,maximumAge:300000,timeout:15000});
     }
     weatherRefreshId=setInterval(async()=>{
-      if(liveWeather.enabled && Number.isFinite(liveWeather.lat) && Number.isFinite(liveWeather.lon)){
-        try{await fetchLocalWeather(liveWeather.lat,liveWeather.lon)}catch(e){}
+      if(closetIqWeatherState.enabled && Number.isFinite(closetIqWeatherState.lat) && Number.isFinite(closetIqWeatherState.lon)){
+        try{await fetchLocalWeather(closetIqWeatherState.lat,closetIqWeatherState.lon)}catch(e){}
       }
     },600000);
   }else{
@@ -3285,8 +3356,8 @@ function homeDayPlan(){
 
 function homeDailySeed(){
   const ctx=homeDayPlan();
-  const weatherPart=liveWeather?.enabled
-    ? `${Math.round(Number(liveWeather.temperature)||0)}-${Number(liveWeather.code)||0}-${Math.round(Number(liveWeather.wind)||0)}`
+  const weatherPart=closetIqWeatherState?.enabled
+    ? `${Math.round(Number(closetIqWeatherState.temperature)||0)}-${Number(closetIqWeatherState.code)||0}-${Math.round(Number(closetIqWeatherState.wind)||0)}`
     : 'weather-off';
   const text=`${ctx.dateKey}|${ctx.plan}|${vibe||'Polished'}|${weatherPart}`;
   let hash=0;
@@ -3338,14 +3409,14 @@ function homeDailyLooks(){
     // Weather penalties are intentionally strong enough to keep obviously
     // unsuitable pieces out of a weather-aware recommendation.
     let penalty=0;
-    if(liveWeather?.enabled){
-      const temp=Number(liveWeather.temperature);
+    if(closetIqWeatherState?.enabled){
+      const temp=Number(closetIqWeatherState.temperature);
       const rainCodes=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99];
       if(Number.isFinite(temp) && temp>=82)
         penalty += clean.filter(x=>/puffer|wool|fleece|shearling|heavy coat|ugg boots/i.test(pwItemText(x))).length*18;
       if(Number.isFinite(temp) && temp<=55)
         penalty -= clean.filter(x=>/shorts|tank|crop|sandals/i.test(pwItemText(x))).length*12;
-      if(rainCodes.includes(Number(liveWeather.code)))
+      if(rainCodes.includes(Number(closetIqWeatherState.code)))
         penalty += clean.filter(x=>/suede|shearling|ugg boots|open toe/i.test(pwItemText(x))).length*18;
     }
 
@@ -3452,7 +3523,7 @@ function homeDailyLooks(){
 }
 
 function homeWeatherLine(){
-  if(!liveWeather?.enabled)return 'Allow local weather to make today’s picks weather-aware.';
+  if(!closetIqWeatherState?.enabled)return 'Allow local weather to make today’s picks weather-aware.';
   return localWeatherRecommendation();
 }
 
@@ -3466,8 +3537,8 @@ function renderHomeRecommendation(){
 
   const summary=document.getElementById('homeWeatherSummary');
   if(summary){
-    if(liveWeather?.enabled && Number.isFinite(Number(liveWeather.temperature))){
-      summary.innerHTML=`${weatherEmoji(Number(liveWeather.code))} ${escapeHtml(liveWeather.description)} · ${Math.round(Number(liveWeather.temperature))}°F in ${escapeHtml(liveWeather.city||'your area')}<br>${escapeHtml(liveWeather.forecastSummary||'Current conditions')}<br>Updated ${new Date(liveWeather.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
+    if(closetIqWeatherState?.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
+      summary.innerHTML=`${weatherEmoji(Number(closetIqWeatherState.code))} ${escapeHtml(closetIqWeatherState.description)} · ${Math.round(Number(closetIqWeatherState.temperature))}°F in ${escapeHtml(closetIqWeatherState.city||'your area')}<br>${escapeHtml(closetIqWeatherState.forecastSummary||'Current conditions')}<br>Updated ${new Date(closetIqWeatherState.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
     }else{
       summary.innerHTML='Local weather permission is off.<br>ClosetIQ will still style from your closet.';
     }
@@ -3475,7 +3546,7 @@ function renderHomeRecommendation(){
 
   const ctx=homeDayPlan();
   const context=document.getElementById('homeContext');
-  if(context)context.textContent=`${ctx.dayName} · ${ctx.plan} · ${selectedVibes.length?selectedVibes.join(' + '):'Your style'} · ${liveWeather?.enabled?'Local weather':'Weather access off'}`;
+  if(context)context.textContent=`${ctx.dayName} · ${ctx.plan} · ${selectedVibes.length?selectedVibes.join(' + '):'Your style'} · ${closetIqWeatherState?.enabled?'Local weather':'Weather access off'}`;
 
   const vibeTag=document.getElementById('homeVibeTag');
   if(vibeTag)vibeTag.textContent=vibe||'Polished';
@@ -3509,7 +3580,7 @@ function renderHomeRecommendation(){
         return `<article class="home-recommendation home-daily-card" data-look-occasion="${escapeHtml(look.occasion||ctx.plan||'Casual')}">
           <div class="home-rec-head">
             <div><span class="pw-badge">FROM YOUR ACTUAL CLOSET</span><h3>${titles[i]}</h3>
-            <p>${escapeHtml(look.occasion)} · ${escapeHtml(vibe||'Polished')} · ${liveWeather?.enabled?escapeHtml(Math.round(Number(liveWeather.temperature))+'°F'): 'Weather access off'}</p></div>
+            <p>${escapeHtml(look.occasion)} · ${escapeHtml(vibe||'Polished')} · ${closetIqWeatherState?.enabled?escapeHtml(Math.round(Number(closetIqWeatherState.temperature))+'°F'): 'Weather access off'}</p></div>
             <span class="home-rec-score">${q.total}%</span>
           </div>
           <div class="home-rec-pieces">${look.pieces.map(p=>`<div class="home-rec-piece"><img src="${p.photo}" alt="${escapeHtml(p.name)}"><span>${escapeHtml(p.name)}</span></div>`).join('')}</div>
@@ -3611,8 +3682,8 @@ function daily(){
   }
 
   function homeWeather(item){
-    if(!liveWeather?.enabled) return 0;
-    const t=Number(liveWeather.temperature);
+    if(!closetIqWeatherState?.enabled) return 0;
+    const t=Number(closetIqWeatherState.temperature);
     if(!Number.isFinite(t)) return 0;
     const n=safeText(item?.name)+' '+safeText(item?.category);
     let s=0;
@@ -3626,7 +3697,7 @@ function daily(){
       if(/tee|shirt|jean|trouser|skirt|dress|sneaker|loafer|light/.test(n)) s+=4;
       if(/puffer|heavy|shearling/.test(n)) s-=5;
     }
-    const rainy=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(Number(liveWeather.code));
+    const rainy=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(Number(closetIqWeatherState.code));
     if(rainy && /suede|shearling|ugg/.test(n)) s-=12;
     if(rainy && /waterproof|rain|shell|nylon|leather/.test(n)) s+=7;
     return s;
@@ -3784,7 +3855,7 @@ function daily(){
       if(count)count.textContent=`${closet.length} uploaded piece${closet.length===1?'':'s'}`;
 
       const ctx=document.getElementById('homeContext');
-      if(ctx)ctx.textContent=`${occasion} · ${vibes.join(' + ')} · ${liveWeather?.enabled?'Local weather':'Weather access off'}`;
+      if(ctx)ctx.textContent=`${occasion} · ${vibes.join(' + ')} · ${closetIqWeatherState?.enabled?'Local weather':'Weather access off'}`;
 
       const vibeTag=document.getElementById('homeVibeTag');
       if(vibeTag)vibeTag.textContent=vibes.join(' + ');
@@ -3793,8 +3864,8 @@ function daily(){
 
       const summary=document.getElementById('homeWeatherSummary');
       if(summary){
-        if(liveWeather?.enabled && Number.isFinite(Number(liveWeather.temperature))){
-          summary.innerHTML=`${weatherEmoji(Number(liveWeather.code))} ${escapeHtml(liveWeather.description||'Local conditions')} · ${escapeHtml(liveWeather.city||'Your area')}<br>Updated ${new Date(liveWeather.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
+        if(closetIqWeatherState?.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
+          summary.innerHTML=`${weatherEmoji(Number(closetIqWeatherState.code))} ${escapeHtml(closetIqWeatherState.description||'Local conditions')} · ${escapeHtml(closetIqWeatherState.city||'Your area')}<br>Updated ${new Date(closetIqWeatherState.updatedAt||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
         }else{
           const now=new Date();
           summary.innerHTML=`${escapeHtml(now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))} · ${escapeHtml(now.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))}<br>Allow local weather for weather-aware recommendations.`;
@@ -3811,7 +3882,7 @@ function daily(){
         return;
       }
 
-      const weatherLine=liveWeather?.enabled
+      const weatherLine=closetIqWeatherState?.enabled
         ? (typeof localWeatherRecommendation==='function'?localWeatherRecommendation():'Using your local weather.')
         : 'Weather access is off · turn it on to make today’s picks weather-aware.';
 
@@ -3967,8 +4038,8 @@ function daily(){
   }
   function weatherScore(x){
     try{
-      if(!window.liveWeather || !liveWeather.enabled) return 0;
-      var t=Number(liveWeather.temperature), n=text(x.name)+' '+text(x.category);
+      if(!window.closetIqWeatherState || !closetIqWeatherState.enabled) return 0;
+      var t=Number(closetIqWeatherState.temperature), n=text(x.name)+' '+text(x.category);
       if(!Number.isFinite(t)) return 0;
       var s=0;
       if(t>=82){
@@ -3981,7 +4052,7 @@ function daily(){
         if(/tee|shirt|jean|trouser|skirt|dress|sneaker|loafer|light/.test(n))s+=4;
         if(/puffer|heavy|shearling/.test(n))s-=5;
       }
-      if([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(Number(liveWeather.code))){
+      if([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(Number(closetIqWeatherState.code))){
         if(/suede|shearling|ugg/.test(n))s-=12;
         if(/waterproof|rain|shell|nylon|leather/.test(n))s+=7;
       }
@@ -4112,10 +4183,10 @@ function daily(){
       var now=new Date();
       var summary=document.getElementById('homeWeatherSummary');
       if(summary){
-        if(window.liveWeather && liveWeather.enabled && Number.isFinite(Number(liveWeather.temperature))){
-          summary.innerHTML=(typeof weatherEmoji==='function'?weatherEmoji(Number(liveWeather.code)):'☀︎')+
-            ' '+Math.round(Number(liveWeather.temperature))+'°F · '+esc(liveWeather.description||'Local conditions')+
-            ' · '+esc(liveWeather.city||'Your area')+
+        if(window.closetIqWeatherState && closetIqWeatherState.enabled && Number.isFinite(Number(closetIqWeatherState.temperature))){
+          summary.innerHTML=(typeof weatherEmoji==='function'?weatherEmoji(Number(closetIqWeatherState.code)):'☀︎')+
+            ' '+Math.round(Number(closetIqWeatherState.temperature))+'°F · '+esc(closetIqWeatherState.description||'Local conditions')+
+            ' · '+esc(closetIqWeatherState.city||'Your area')+
             '<br>Updated '+now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
         }else{
           summary.innerHTML=esc(now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))+
@@ -4124,12 +4195,12 @@ function daily(){
         }
       }
       var temp=document.getElementById('homeTemp');
-      if(temp)temp.textContent=(window.liveWeather&&liveWeather.enabled&&Number.isFinite(Number(liveWeather.temperature)))
-        ? Math.round(Number(liveWeather.temperature))+'°'
+      if(temp)temp.textContent=(window.closetIqWeatherState&&closetIqWeatherState.enabled&&Number.isFinite(Number(closetIqWeatherState.temperature)))
+        ? Math.round(Number(closetIqWeatherState.temperature))+'°'
         : now.toLocaleDateString(undefined,{day:'numeric'});
 
       var ctx=document.getElementById('homeContext');
-      if(ctx)ctx.textContent=occasion+' · '+vibes.join(' + ')+' · '+(window.liveWeather&&liveWeather.enabled?'Local weather':'Weather access off');
+      if(ctx)ctx.textContent=occasion+' · '+vibes.join(' + ')+' · '+(window.closetIqWeatherState&&closetIqWeatherState.enabled?'Local weather':'Weather access off');
 
       var vt=document.getElementById('homeVibeTag'); if(vt)vt.textContent=vibes.join(' + ');
       var ot=document.getElementById('homeOccTag'); if(ot)ot.textContent=occasion;
@@ -4145,7 +4216,7 @@ function daily(){
 
       var titles=["Today’s strongest look","Another strong option","Alternate look"];
       el.innerHTML='<div class="home-daily-banner"><div><strong>'+esc(occasion)+' · '+esc(vibes.join(' + '))+'</strong><span>Built from your actual closet.  Recommendations change with your style, occasion, weather and day.</span></div><span class="home-daily-weather">'+
-        (window.liveWeather&&liveWeather.enabled?'Using local weather.':'Weather access is off — the outfit still uses your actual closet.')+
+        (window.closetIqWeatherState&&closetIqWeatherState.enabled?'Using local weather.':'Weather access is off — the outfit still uses your actual closet.')+
         '</span></div><div class="home-daily-grid">'+
         looks.map(function(look,i){
           var score=Math.max(62,Math.min(98,Math.round(72+look.score/5)));
